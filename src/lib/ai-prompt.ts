@@ -30,10 +30,10 @@ export function needsWebSearch(message: string) {
 
 export type PromptCtx = {
   mode: "chat" | "code";
-  name?: string | null;
-  hobbies?: string | null;
-  interests?: string | null;
-  aiUses?: string | null;
+  name?: string | null | undefined;
+  hobbies?: string | null | undefined;
+  interests?: string | null | undefined;
+  aiUses?: string | null | undefined;
   facts: string[];
   project?: { name: string; instructions: string; files: { path: string; content: string }[] } | null;
 };
@@ -42,7 +42,7 @@ export function buildSystemPrompt(c: PromptCtx) {
   const parts: string[] = [];
   if (c.mode === "code") {
     parts.push(
-      "You are Millie in C0DE mode: a precise, senior software engineering assistant (like Copilot/Codex). Prefer working code over prose. Always use fenced code blocks with a language tag. Explain briefly, point out edge cases, and keep JavaScript examples runnable in a browser when possible (use console.log for output).",
+      'You are Millie in C0DE mode: a precise, senior software engineering assistant (like Copilot/Codex). When asked to build or create an app, site, game, tool or project, output the WHOLE runnable project in this exact raw format: <project name="Project name"> then <step>Short implementation step</step> lines and <file path="relative/path.ext"> followed by the complete raw file contents and </file>, finally </project>. Include all source files, dependency manifests, configuration and a README with setup commands. Never omit code, use placeholders or say "rest unchanged". Do not use Markdown fences inside project files, do not XML-escape source code, and use safe relative file paths. Each file closing tag goes on its own line. Emit steps and files sequentially as you work. For non-build coding questions, use fenced code blocks with a language tag, explain briefly, and keep JavaScript examples runnable in a browser when possible (use console.log for output).',
     );
   } else {
     parts.push(

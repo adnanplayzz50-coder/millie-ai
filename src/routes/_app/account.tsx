@@ -28,6 +28,8 @@ export const Route = createFileRoute("/_app/account")({
       { name: "description", content: "Manage your Millie AI profile and account." },
       { property: "og:title", content: "Account — Millie AI" },
       { property: "og:description", content: "Manage your Millie AI profile and account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Account,
@@ -54,7 +56,8 @@ function Account() {
   }, [user]);
 
   const saveProfile = async (patch: { display_name?: string; avatar_url?: string | null }) => {
-    const { error } = await supabase.from("profiles").update(patch).eq("id", user!.id);
+    if (!user) return;
+    const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
     if (error) toast.error("Could not save");
     else toast.success("Saved");
   };
@@ -65,14 +68,16 @@ function Account() {
     const c = document.createElement("canvas");
     const s = Math.min(img.width, img.height);
     c.width = c.height = 192;
-    c.getContext("2d")!.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 192, 192);
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 192, 192);
     const url = c.toDataURL("image/jpeg", 0.85);
     setAvatar(url);
     await saveProfile({ avatar_url: url });
   };
 
   return (
-    <PageShell title="Account" subtitle={user?.email}>
+    <PageShell title="Account" subtitle={user?.email ?? ""}>
       <div className="space-y-5">
         <Panel title="Profile">
           <div className="flex items-center gap-4">
@@ -111,7 +116,7 @@ function Account() {
             className="flex flex-col gap-2 sm:flex-row"
             onSubmit={async (e) => {
               e.preventDefault();
-              if (password !== confirm) return toast.error("Passwords don't match");
+              if (password !== confirm) { toast.error("Passwords don't match"); return; }
               const { error } = await supabase.auth.updateUser({ password });
               if (error) toast.error(error.message);
               else {

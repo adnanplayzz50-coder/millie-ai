@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { LogoMark } from "@/components/Logo";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -37,15 +38,18 @@ function Onboarding() {
   }, [user, loading, navigate]);
 
   const finish = async (save: boolean) => {
-    if (user)
-      await supabase
+    if (user) {
+      const { error } = await supabase
         .from("profiles")
         .update({ ...(save ? answers : {}), onboarded: true })
         .eq("id", user.id);
+      if (error) { toast.error("Could not save your answers. Please try again."); return; }
+    }
     navigate({ to: "/chat" });
   };
 
   const s = STEPS[step];
+  if (!s) return null;
   return (
     <div className="grid min-h-dvh place-items-center px-4">
       <div className="w-full max-w-lg">
