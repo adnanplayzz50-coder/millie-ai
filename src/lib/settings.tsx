@@ -44,8 +44,8 @@ const SettingsCtx = createContext<Ctx>({ settings: DEFAULT_SETTINGS, update: () 
 export function applySettings(s: Settings) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  root.dataset.font = s.font;
-  root.dataset.palette = s.palette === "custom" ? "violet" : s.palette;
+  root.dataset['font'] = s.font;
+  root.dataset['palette'] = s.palette === "custom" ? "violet" : s.palette;
   if (s.palette === "custom" && s.custom_color) root.style.setProperty("--primary", s.custom_color);
   else root.style.removeProperty("--primary");
   const dark =

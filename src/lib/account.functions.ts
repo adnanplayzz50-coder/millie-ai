@@ -5,7 +5,7 @@ export const extractMemory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { conversationId: string }) => d)
   .handler(async ({ data, context }) => {
-    const key = process.env.GROQ_API_KEY;
+    const key = process.env['GROQ_API_KEY'];
     if (!key) return { added: 0 };
     const { supabase, userId } = context;
     const [{ data: msgs }, { data: existing }] = await Promise.all([
